@@ -1,12 +1,11 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div>
     <div class="q-pa-md q-gutter-sm">
-      <q-breadcrumbs class="text-orange" active-color="secondary">
+      <q-breadcrumbs  >
         <template v-slot:separator>
           <q-icon
             size="1.2em"
             name="arrow_forward"
-            color="primary"
           />
         </template>
 
@@ -16,37 +15,19 @@
     </div>
     <q-separator></q-separator>
 
-    <div class="row">
-      <div class="col-8 q-pa-md q-gutter-sm">
-        <q-markdown src="::: tip
-You can create different user groups here. Different user groups can have different permissions.
-E.g. Admin Group that has permissions to create, read, write and delete tables.
-:::"></q-markdown>
-      </div>
-    </div>
-
     <q-page-sticky position="bottom-right" :offset="[50, 50]">
       <q-btn @click="newGroupDrawer = true" label="Add Group" fab icon="add" color="primary"/>
     </q-page-sticky>
 
     <div class="row">
-      <div class="col-8 q-pa-md q-gutter-sm">
-        <q-table
-          title="User groups"
-          :data="groups"
-          row-key="index"
-          @row-click="editGroup"
-          :rows-per-page-options="[50]"
-          :columns="columns"
-        >
-          <template v-slot:top-right>
-            <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
-              <template v-slot:append>
-                <q-icon name="search"/>
-              </template>
-            </q-input>
-          </template>
-        </q-table>
+      <div class="col-12">
+        <q-markup-table>
+          <tbody>
+          <tr style="cursor: pointer" @click="$router.push('/groups/' + group.reference_id)" v-for="group in groups">
+            <td>{{group.name}}</td>
+          </tr>
+          </tbody>
+        </q-markup-table>
 
       </div>
     </div>
@@ -63,6 +44,24 @@ E.g. Admin Group that has permissions to create, read, write and delete tables.
         </div>
       </q-scroll-area>
     </q-drawer>
+
+    <q-page-sticky v-if="!showHelp" position="top-right" :offset="[0, 0]">
+      <q-btn flat @click="showHelp = true" fab icon="fas fa-question"/>
+    </q-page-sticky>
+
+    <q-drawer overlay :width="400" side="right" v-model="showHelp">
+      <q-scroll-area class="fit">
+        <help-page @closeHelp="showHelp = false">
+          <template v-slot:help-content>
+            <q-markdown src="::: tip
+You can create different user groups here. Different user groups can have different permissions.
+E.g. Admin Group that has permissions to create, read, write and delete tables.
+:::"></q-markdown>
+          </template>
+        </help-page>
+      </q-scroll-area>
+    </q-drawer>
+
 
   </div>
 </template>
@@ -112,6 +111,7 @@ E.g. Admin Group that has permissions to create, read, write and delete tables.
     data() {
       return {
         text: '',
+        showHelp: false,
         group: {},
         filter: null,
         newGroupDrawer: false,
